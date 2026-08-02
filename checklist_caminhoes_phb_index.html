@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PH &amp; B &middot; Checklist de Caminhões</title>
+<style>
+  :root{
+    --navy:#213547;
+    --navy2:#2c4459;
+    --red:#b9903f;
+    --red-dark:#93712f;
+    --bg:#f2f4f8;
+    --card:#ffffff;
+    --line:#e2e5ec;
+    --text:#1c2333;
+    --muted:#697089;
+    --ok:#1e8f5f;
+    --okbg:#e5f6ee;
+    --bad:#c2273a;
+    --badbg:#fbe7e9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    background:var(--bg); color:var(--text); padding-bottom:60px;
+  }
+  header.top{
+    background:var(--navy); color:#fff; padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  header.top .brand{display:flex; align-items:center; gap:8px; font-weight:700; letter-spacing:.5px; font-size:14px;}
+  header.top .brand .chev{color:var(--red); font-weight:900;}
+  nav.tabs{display:flex; gap:6px;}
+  nav.tabs button{
+    background:transparent; border:none; color:#c9cede; padding:10px 16px;
+    font-size:13px; font-weight:600; letter-spacing:.3px; cursor:pointer; border-radius:6px 6px 0 0;
+  }
+  nav.tabs button.active{background:#fff; color:var(--navy);}
+  .hero{
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    color:#fff; padding:36px 24px; position:relative; overflow:hidden;
+  }
+  .hero .chev{color:var(--red); font-weight:900; letter-spacing:2px;}
+  .hero h1{margin:6px 0 2px; font-size:28px; line-height:1.15;}
+  .hero h1 span{color:var(--red);}
+  .hero p{margin:8px 0 0; color:#c9cede; font-size:14px;}
+  .wrap{max-width:760px; margin:24px auto; padding:0 16px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px; margin-bottom:18px;}
+  .section-title{
+    color:var(--red); font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+    border-bottom:2px solid var(--line); padding-bottom:10px; margin-bottom:16px;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+  label.field-label{display:block; font-size:12px; font-weight:700; margin-bottom:6px; color:var(--navy);}
+  label.field-label .req{color:var(--red);}
+  input[type=text], input[type=number], input[type=date], select, textarea{
+    width:100%; padding:11px 12px; border:1px solid #cfd4e0; border-radius:7px;
+    font-size:14px; background:#f8f9fc; color:var(--text); font-family:inherit;
+  }
+  textarea{resize:vertical; min-height:70px;}
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--navy); background:#fff;}
+  .truck-picker{display:flex; gap:10px; flex-wrap:wrap;}
+  .truck-btn{
+    flex:1; min-width:140px; padding:14px 10px; border:2px solid #cfd4e0; border-radius:8px;
+    background:#f8f9fc; text-align:center; cursor:pointer; font-weight:700; font-size:14px; color:var(--navy);
+  }
+  .truck-btn.active{border-color:var(--red); background:var(--badbg); color:var(--red-dark);}
+  .weekday-note{font-size:12px; color:var(--muted); margin-top:6px;}
+  .weekday-note.warn{color:#a9700b;}
+  .item{
+    border-bottom:1px solid var(--line); padding:16px 0;
+  }
+  .item:last-child{border-bottom:none;}
+  .item-q{font-size:14px; font-weight:600; margin-bottom:10px;}
+  .item-q .num{color:var(--red); margin-right:6px;}
+  .options{display:flex; gap:8px; flex-wrap:wrap;}
+  .opt{
+    flex:1; min-width:90px; text-align:center; padding:9px 8px; border:1.5px solid #cfd4e0; border-radius:6px;
+    cursor:pointer; font-size:13px; font-weight:700; color:var(--muted); background:#fafbfd;
+  }
+  .opt.selected-good{border-color:var(--ok); background:var(--okbg); color:var(--ok);}
+  .opt.selected-bad{border-color:var(--bad); background:var(--badbg); color:var(--bad);}
+  .btn-primary{
+    background:var(--red); color:#fff; border:none; padding:14px 22px; font-size:15px; font-weight:700;
+    border-radius:8px; cursor:pointer; width:100%;
+  }
+  .btn-primary:hover{background:var(--red-dark);}
+  .btn-secondary{
+    background:transparent; border:1.5px solid var(--navy); color:var(--navy); padding:10px 16px;
+    font-size:13px; font-weight:700; border-radius:7px; cursor:pointer;
+  }
+  .msg{padding:12px 14px; border-radius:7px; font-size:13px; margin-bottom:16px; font-weight:600;}
+  .msg.error{background:var(--badbg); color:var(--bad);}
+  .msg.success{background:var(--okbg); color:var(--ok);}
+  .hidden{display:none !important;}
+  /* history */
+  .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+  .filters select{width:auto; min-width:160px;}
+  .entry{border:1px solid var(--line); border-radius:9px; margin-bottom:12px; overflow:hidden;}
+  .entry-head{
+    padding:14px 16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+    background:#fafbfd;
+  }
+  .entry-head:hover{background:#f2f4f8;}
+  .entry-head .left b{font-size:14px;}
+  .entry-head .left div{font-size:12px; color:var(--muted); margin-top:2px;}
+  .badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px;}
+  .badge.ok{background:var(--okbg); color:var(--ok);}
+  .badge.alert{background:var(--badbg); color:var(--bad);}
+  .entry-body{padding:0 16px 16px; display:none;}
+  .entry-body.open{display:block;}
+  .entry-body table{width:100%; border-collapse:collapse; font-size:13px;}
+  .entry-body td{padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top;}
+  .entry-body td.q{color:var(--muted); width:65%;}
+  .entry-body td.a{font-weight:700; text-align:right;}
+  .entry-body td.a.bad{color:var(--bad);}
+  .entry-body td.a.good{color:var(--ok);}
+  .empty{text-align:center; padding:40px 20px; color:var(--muted); font-size:14px;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAplFdAba__PlC1uY9DRmg5yBiAVxUOXaY",
+    authDomain: "phb-checklistcaminhoes.firebaseapp.com",
+    projectId: "phb-checklistcaminhoes",
+    storageBucket: "phb-checklistcaminhoes.firebasestorage.app",
+    messagingSenderId: "1077916505028",
+    appId: "1:1077916505028:web:706fd4e851fe529e63ca91"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg width="26" height="20" viewBox="0 0 26 20" style="flex:none;">
+      <rect x="0" y="14" width="9" height="3" fill="#c9a35c"/>
+      <rect x="0" y="9" width="14" height="3" fill="#c9a35c"/>
+      <rect x="0" y="4" width="19" height="3" fill="#c9a35c"/>
+      <rect x="0" y="-1" width="24" height="3" fill="#c9a35c" transform="translate(0,1)"/>
+    </svg>
+    <span style="letter-spacing:1px;">PH <span style="color:#c9a35c;">&amp;</span> B &middot; FROTA</span>
+  </div>
+  <nav class="tabs">
+    <button id="tabBtnForm" class="active" onclick="switchTab('form')">Preencher checklist</button>
+    <button id="tabBtnHist" onclick="switchTab('hist')">Histórico</button>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="chev" style="color:#c9a35c;">PH &amp; B COM&Eacute;RCIO E SERVI&Ccedil;OS</div>
+  <h1>Checklist di&aacute;rio <span style="color:#c9a35c;">dos caminh&otilde;es</span></h1>
+  <p>Preenchimento obrigat&oacute;rio &agrave;s ter&ccedil;as e quintas antes da sa&iacute;da.</p>
+</div>
+
+<div class="wrap">
+
+  <div id="msgBox"></div>
+
+  <!-- FORM TAB -->
+  <div id="tabForm">
+
+    <div class="card">
+      <div class="section-title">Identificação</div>
+      <div style="margin-bottom:16px;">
+        <label class="field-label">Caminhão <span class="req">*</span></label>
+        <div class="truck-picker" id="truckPicker"></div>
+      </div>
+      <div class="grid2">
+        <div>
+          <label class="field-label">Motorista <span class="req">*</span></label>
+          <input type="text" id="driverName" placeholder="Nome completo">
+        </div>
+        <div>
+          <label class="field-label">Data <span class="req">*</span></label>
+          <input type="date" id="checkDate">
+          <div class="weekday-note" id="weekdayNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Itens do checklist</div>
+      <div id="itemsContainer"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Observações</div>
+      <textarea id="observacoes" placeholder="Ex: trocar as palhetas do parabrisa"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="submitChecklist()">Enviar checklist</button>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tabHist" class="hidden">
+    <div class="card">
+      <div class="section-title">Filtrar</div>
+      <div class="filters">
+        <select id="filterTruck" onchange="loadHistory()"></select>
+        <button class="btn-secondary" onclick="loadHistory()">Atualizar</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TRUCKS = [
+  {id:'mercedes710', label:'Mercedes 710'},
+  {id:'accelo117', label:'Accelo 117'},
+  {id:'atego1719', label:'Atego 1719'}
+];
+
+// type: 'sim_nao' (bad=SIM), 'sim_nao_inv' (bad=NAO), 'ok' (bad=NAO OK), 'level'
+const ITEMS = [
+  {id:'nivel_oleo', n:1, q:'Nível do óleo do motor', type:'level', opts:['ALTO','MÉDIO','BAIXO'], bad:['BAIXO']},
+  {id:'vazamento_geral', n:2, q:'Contém vazamentos em geral', type:'sim_nao', bad:['SIM']},
+  {id:'reserv_radiador', n:3, q:'Reservatório de água do radiador', type:'ok', bad:['NÃO OK']},
+  {id:'vazamento_balao', n:4, q:'Contém vazamentos no balão de ar', type:'sim_nao', bad:['SIM']},
+  {id:'pneus_traseiros', n:5, q:'Pneus traseiros com desgastes, cortes ou perfurações', type:'sim_nao', bad:['SIM']},
+  {id:'pneus_dianteiros', n:6, q:'Pneus dianteiros com desgastes, cortes ou perfurações', type:'sim_nao', bad:['SIM']},
+  {id:'pneu_reserva', n:7, q:'Pneu reserva está apto para uso', type:'sim_nao', bad:['NÃO']},
+  {id:'luz_freio', n:8, q:'Luz de freio', type:'ok', bad:['NÃO OK']},
+  {id:'farois_traseiros', n:9, q:'Faróis traseiros', type:'ok', bad:['NÃO OK']},
+  {id:'farois_dianteiros', n:10, q:'Faróis dianteiros', type:'ok', bad:['NÃO OK']},
+  {id:'setas_traseiras', n:11, q:'Setas traseiras', type:'ok', bad:['NÃO OK']},
+  {id:'setas_dianteiras', n:12, q:'Setas dianteiras', type:'ok', bad:['NÃO OK']},
+  {id:'luz_re', n:13, q:'Luz e sinal sonoro de ré', type:'ok', bad:['NÃO OK']},
+  {id:'palhetas', n:14, q:'Contém desgastes nas palhetas do limpador frontal', type:'sim_nao', bad:['SIM']},
+  {id:'reserv_limpador', n:15, q:'Reservatório de água do limpador frontal', type:'ok', bad:['NÃO OK']},
+  {id:'correias', n:16, q:'Ruídos das correias', type:'ok', bad:['NÃO OK']},
+  {id:'parabrisa', n:17, q:'Trincas no parabrisa', type:'ok', bad:['NÃO OK']},
+  {id:'estrutura_bau', n:18, q:'Estrutura do baú de refrigeração', type:'ok', bad:['NÃO OK']},
+  {id:'trancas_bau', n:19, q:'Trancas das 3 portas do baú refrigerado', type:'ok', bad:['NÃO OK']},
+  {id:'alertas_bordo', n:20, q:'Contém alertas no computador de bordo', type:'sim_nao', bad:['SIM']},
+  {id:'extintor', n:21, q:'Extintor de incêndio (validade e lacre)', type:'ok', bad:['NÃO OK']},
+  {id:'grampos_bau', n:22, q:'Grampos do baú', type:'ok', bad:['NÃO OK']},
+  {id:'lubrificacao', n:23, q:'Lubrificação', type:'ok', bad:['NÃO OK']},
+  {id:'calibragem', n:24, q:'Calibragem dos pneus', type:'ok', bad:['NÃO OK']}
+];
+
+const OPTS = {
+  sim_nao: ['SIM','NÃO'],
+  ok: ['OK','NÃO OK'],
+  level: ['ALTO','MÉDIO','BAIXO']
+};
+
+let selectedTruck = null;
+let answers = {};
+
+function switchTab(tab){
+  document.getElementById('tabForm').classList.toggle('hidden', tab!=='form');
+  document.getElementById('tabHist').classList.toggle('hidden', tab!=='hist');
+  document.getElementById('tabBtnForm').classList.toggle('active', tab==='form');
+  document.getElementById('tabBtnHist').classList.toggle('active', tab==='hist');
+  if(tab==='hist') loadHistory();
+}
+
+function showMsg(text, type){
+  const box = document.getElementById('msgBox');
+  box.innerHTML = '<div class="msg '+type+'">'+text+'</div>';
+  if(type==='success'){ window.scrollTo({top:0, behavior:'smooth'}); }
+}
+
+function initTruckPicker(){
+  const el = document.getElementById('truckPicker');
+  el.innerHTML = TRUCKS.map(t =>
+    '<div class="truck-btn" data-id="'+t.id+'" onclick="selectTruck(\''+t.id+'\')">'+t.label+'</div>'
+  ).join('');
+
+  const fEl = document.getElementById('filterTruck');
+  fEl.innerHTML = '<option value="">Todos os caminhões</option>' +
+    TRUCKS.map(t => '<option value="'+t.id+'">'+t.label+'</option>').join('');
+}
+
+function selectTruck(id){
+  selectedTruck = id;
+  document.querySelectorAll('.truck-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.id===id);
+  });
+}
+
+function initDate(){
+  const dEl = document.getElementById('checkDate');
+  const today = new Date();
+  dEl.value = today.toISOString().slice(0,10);
+  updateWeekdayNote();
+  dEl.addEventListener('change', updateWeekdayNote);
+}
+
+function updateWeekdayNote(){
+  const dEl = document.getElementById('checkDate');
+  const note = document.getElementById('weekdayNote');
+  if(!dEl.value){ note.textContent=''; return; }
+  const d = new Date(dEl.value + 'T12:00:00');
+  const days = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const wd = d.getDay();
+  if(wd===2 || wd===4){
+    note.textContent = 'Dia de checklist: ' + days[wd] + '.';
+    note.classList.remove('warn');
+  } else {
+    note.textContent = days[wd] + ' — o checklist normalmente é feito às terças e quintas.';
+    note.classList.add('warn');
+  }
+}
+
+function initItems(){
+  const c = document.getElementById('itemsContainer');
+  c.innerHTML = ITEMS.map(item => {
+    const opts = OPTS[item.type];
+    const optsHtml = opts.map(o =>
+      '<div class="opt" data-val="'+o+'" onclick="selectOpt(\''+item.id+'\',\''+o+'\')">'+o+'</div>'
+    ).join('');
+    return '<div class="item" data-item="'+item.id+'">'+
+      '<div class="item-q"><span class="num">'+item.n+'.</span>'+item.q+'</div>'+
+      '<div class="options" id="opts_'+item.id+'">'+optsHtml+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function selectOpt(itemId, val){
+  answers[itemId] = val;
+  const item = ITEMS.find(i=>i.id===itemId);
+  const container = document.getElementById('opts_'+itemId);
+  container.querySelectorAll('.opt').forEach(o=>{
+    o.classList.remove('selected-good','selected-bad');
+    if(o.dataset.val===val){
+      o.classList.add(item.bad.includes(val) ? 'selected-bad' : 'selected-good');
+    }
+  });
+}
+
+function validate(){
+  if(!selectedTruck){ showMsg('Selecione o caminhão.', 'error'); return false; }
+  if(!document.getElementById('driverName').value.trim()){ showMsg('Informe o nome do motorista.', 'error'); return false; }
+  if(!document.getElementById('checkDate').value){ showMsg('Informe a data.', 'error'); return false; }
+  for(const item of ITEMS){
+    if(!answers[item.id]){
+      showMsg('Falta responder o item ' + item.n + ' (' + item.q + ').', 'error');
+      document.querySelector('[data-item="'+item.id+'"]').scrollIntoView({behavior:'smooth', block:'center'});
+      return false;
+    }
+  }
+  const km = document.getElementById('kmField').value;
+  if(!km){ showMsg('Informe a quilometragem do veículo.', 'error'); return false; }
+  const horas = document.getElementById('horasField').value;
+  if(!horas.trim()){ showMsg('Informe as horas de motor.', 'error'); return false; }
+  return true;
+}
+
+async function submitChecklist(){
+  if(!validate()) return;
+  const truckLabel = TRUCKS.find(t=>t.id===selectedTruck).label;
+  const record = {
+    truckId: selectedTruck,
+    truckLabel: truckLabel,
+    driver: document.getElementById('driverName').value.trim(),
+    date: document.getElementById('checkDate').value,
+    km: document.getElementById('kmField').value,
+    horas: document.getElementById('horasField').value.trim(),
+    observacoes: document.getElementById('observacoes').value.trim(),
+    answers: JSON.parse(JSON.stringify(answers)),
+    submittedAt: new Date().toISOString()
+  };
+  const alerts = ITEMS.filter(it => record.answers[it.id] && it.bad.includes(record.answers[it.id]));
+  record.hasAlerts = alerts.length > 0;
+
+  try{
+    await db.collection('checklists').add(record);
+    showMsg('Checklist enviado com sucesso' + (record.hasAlerts ? ' — atenção: há itens sinalizados.' : '.'), 'success');
+    resetForm();
+  }catch(e){
+    showMsg('Erro ao salvar o checklist: ' + (e && e.message ? e.message : 'tente novamente.'), 'error');
+  }
+}
+
+function resetForm(){
+  answers = {};
+  selectedTruck = null;
+  document.querySelectorAll('.truck-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected-good','selected-bad'));
+  document.getElementById('driverName').value = '';
+  document.getElementById('kmField').value = '';
+  document.getElementById('horasField').value = '';
+  document.getElementById('observacoes').value = '';
+  initDate();
+}
+
+async function loadHistory(){
+  const listEl = document.getElementById('historyList');
+  listEl.innerHTML = '<div class="empty">Carregando...</div>';
+  const filterTruck = document.getElementById('filterTruck').value;
+  try{
+    let query = db.collection('checklists');
+    if(filterTruck){ query = query.where('truckId', '==', filterTruck); }
+    const snapshot = await query.get();
+    if(snapshot.empty){
+      listEl.innerHTML = '<div class="empty">Nenhum checklist enviado ainda.</div>';
+      return;
+    }
+    const records = [];
+    snapshot.forEach(doc => records.push(doc.data()));
+    records.sort((a,b) => (b.submittedAt||'').localeCompare(a.submittedAt||''));
+    listEl.innerHTML = records.map((r, idx) => renderEntry(r, idx)).join('');
+  }catch(e){
+    listEl.innerHTML = '<div class="empty">Erro ao carregar o histórico: ' + (e && e.message ? e.message : '') + '</div>';
+  }
+}
+
+function renderEntry(r, idx){
+  const badgeHtml = r.hasAlerts
+    ? '<span class="badge alert">Com alertas</span>'
+    : '<span class="badge ok">Sem alertas</span>';
+  const rows = ITEMS.map(it=>{
+    const val = r.answers[it.id] || '-';
+    const cls = it.bad.includes(val) ? 'bad' : 'good';
+    return '<tr><td class="q">'+it.n+'. '+it.q+'</td><td class="a '+cls+'">'+val+'</td></tr>';
+  }).join('');
+  const extraRows =
+    '<tr><td class="q">Quilometragem</td><td class="a">'+ (r.km||'-') +'</td></tr>' +
+    '<tr><td class="q">Horas de motor</td><td class="a">'+ (r.horas||'-') +'</td></tr>' +
+    (r.observacoes ? '<tr><td class="q">Observações</td><td class="a" style="text-align:left;">'+escapeHtml(r.observacoes)+'</td></tr>' : '');
+  return '<div class="entry">'+
+    '<div class="entry-head" onclick="toggleEntry(this)">'+
+      '<div class="left"><b>'+r.truckLabel+' — '+r.driver+'</b><div>'+formatDate(r.date)+'</div></div>'+
+      badgeHtml+
+    '</div>'+
+    '<div class="entry-body"><table>'+rows+extraRows+'</table></div>'+
+  '</div>';
+}
+
+function toggleEntry(headEl){
+  const body = headEl.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function formatDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso+'T12:00:00');
+  const days = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  return d.toLocaleDateString('pt-BR') + ' (' + days[d.getDay()] + ')';
+}
+
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+// build km/horas fields into items container end
+function initExtraFields(){
+  const c = document.getElementById('itemsContainer');
+  c.innerHTML += '<div class="item">'+
+    '<div class="item-q"><span class="num">25.</span>Quilometragem do veículo</div>'+
+    '<input type="number" id="kmField" placeholder="Ex: 31401">'+
+  '</div>'+
+  '<div class="item">'+
+    '<div class="item-q"><span class="num">26.</span>Horas de motor funcionando</div>'+
+    '<input type="text" id="horasField" placeholder="Ex: 1276h 31min">'+
+  '</div>';
+}
+
+initTruckPicker();
+initDate();
+initItems();
+initExtraFields();
+</script>
+
+</body>
+</html>
